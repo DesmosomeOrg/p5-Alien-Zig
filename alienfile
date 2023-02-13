@@ -64,8 +64,8 @@ share {
       my @versions = sort { Sort::Versions::versioncmp( $b, $a ) } keys %$downloads;
       my $type = $use_binary_release ? $zig_os_arch : 'src';
 
-      meta->prop->{release_style} = $use_binary_release ? 'binary' : 'source';
-      meta->prop->{release_format} = (
+      $build->install_prop->{release_style} = $use_binary_release ? 'binary' : 'source';
+      $build->install_prop->{release_format} = (
         $use_binary_release
         ? ($^O eq 'MSWin32' ? 'zip' : 'tar.xz')
         : 'tar.xz'
@@ -93,8 +93,9 @@ share {
   });
 
   extract(sub {
+    my ($build) = @_;
     meta->apply_plugin('Extract',
-      format  => meta->prop->{release_format} || 'tar.xz'
+      format  => $build->install_prop->{release_format} || 'tar.xz'
     );
     # NOTE HACK!!!
     meta->{hook}{extract}[-1]->(@_);
@@ -102,7 +103,7 @@ share {
 
   build sub {
     my ($build) = @_;
-    if( meta->prop->{release_style} eq 'source' ) {
+    if( $build->install_prop->{release_style} eq 'source' ) {
       plugin 'Build::CMake';
       Alien::Build::CommandSequence->new(
         ['%{cmake}', @{ meta->prop->{plugin_build_cmake}->{args} }, '%{.install.extract}'],
@@ -129,6 +130,6 @@ share {
 
   after gather => sub {
     my ($build) = @_;
-    $build->runtime_prop->{'style'} = meta->prop->{release_style};
+    $build->runtime_prop->{'style'} = $build->install_prop->{release_style};
   };
 }
