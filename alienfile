@@ -114,7 +114,11 @@ share {
     } else {
       plugin 'Build::Copy';
       # NOTE HACK!!!
-      meta->{hook}{build}[-1]->execute(@_);
+      if( ref(my $last_hook = meta->{hook}{build}[-1]) eq 'Alien::Build::CommandSequence' ) {
+        $last_hook->execute(@_);
+      } else {
+        $last_hook->(@_);
+      }
     }
   };
 
