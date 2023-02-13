@@ -1,0 +1,23 @@
+use alienfile;
+
+# replace this with your own system probe.
+# See Alien::Build::Plugin::Probe and
+# Alien::Build::Plugin::PkgConfig for common
+# probe plugins.
+probe sub { 'share' };
+
+share {
+  start_url 'https://ziglang.org/builds';
+  plugin Download => (
+    filter  => qr/^zig.*tar\.xz$/,
+    version => qr/([0-9\.]+)/,
+  );
+  plugin Extract => 'tar.xz';
+  plugin 'Build::CMake';
+  build [
+    ['%{cmake}', @{ meta->prop->{plugin_build_cmake}->{args} }, '%{.install.extract}'],
+    '%{make}',
+    '%{make} install',
+  ];
+  plugin 'Gather::IsolateDynamic';
+}
