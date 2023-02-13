@@ -21,6 +21,7 @@ sub _decode {
 share {
   requires 'Alien::Build::CommandSequence';
   requires 'Sort::Versions';
+  requires 'Alien::unzip' if $^O eq 'MSWin32';
 
   start_url 'https://ziglang.org/download/index.json';
 

@@ -16,6 +16,7 @@ env:
   PKG_MSYS2_MINGW64: mingw-w64-x86_64-zig
   PKG_MSYS2_MINGW64_DEPS: >-
     base-devel
+    unzip
     mingw-w64-x86_64-toolchain
     mingw-w64-x86_64-perl
 
@@ -111,6 +112,11 @@ jobs:
         shell: msys2 {0}
         run: |
           pacman -S --needed --noconfirm ${{ env.PKG_MSYS2_MINGW64 }}
+
+      - name: Install unzip on Windows
+        if: runner.os == 'Windows' && matrix.dist == 'strawberry'
+        run:
+          choco install -y --allowemptychecksum unzip
 
       # Setup Perl
       - name: Set up perl
